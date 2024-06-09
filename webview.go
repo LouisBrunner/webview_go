@@ -118,6 +118,8 @@ type WebView interface {
 
 	// Removes a callback that was previously set by Bind.
 	Unbind(name string) error
+
+	NativeHandle(kind NativeHandleKind) unsafe.Pointer
 }
 
 type webview struct {
@@ -168,6 +170,18 @@ func (w *webview) Terminate() {
 
 func (w *webview) Window() unsafe.Pointer {
 	return C.webview_get_window(w.w)
+}
+
+type NativeHandleKind C.webview_native_handle_kind_t
+
+const (
+	NativeHandleKindUIWindow          NativeHandleKind = C.WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW
+	NativeHandleKindUIWidget          NativeHandleKind = C.WEBVIEW_NATIVE_HANDLE_KIND_UI_WIDGET
+	NativeHandleKindBrowserController NativeHandleKind = C.WEBVIEW_NATIVE_HANDLE_KIND_BROWSER_CONTROLLER
+)
+
+func (w *webview) NativeHandle(kind NativeHandleKind) unsafe.Pointer {
+	return C.webview_get_native_handle(w.w, C.webview_native_handle_kind_t(kind))
 }
 
 func (w *webview) Navigate(url string) {
